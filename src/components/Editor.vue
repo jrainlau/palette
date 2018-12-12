@@ -1,6 +1,7 @@
 <template>
   <div class="editor">
     <div class="editor-main">
+      <Grid />
       <PText
         v-for="(node, index) in nodes"
         :key="index"
@@ -12,6 +13,7 @@
 <script>
 import { mapState } from 'vuex'
 import PText from './Text'
+import Grid from '@/components/Grid'
 
 export default {
   computed: {
@@ -20,7 +22,8 @@ export default {
     })
   },
   components: {
-    PText
+    PText,
+    Grid
   }
 }
 </script>
@@ -35,7 +38,7 @@ export default {
     position: relative;
     width: 960px;
     height: 700px;
-    background: pink;
+    // background: pink;
   }
 }
 </style>

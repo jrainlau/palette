@@ -28,7 +28,7 @@ export default {
             y: 0,
             depth: 1,
             width: 150,
-            height: 60,
+            height: 30,
             content: 'Text'
           }
         })
