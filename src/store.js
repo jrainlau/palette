@@ -14,7 +14,8 @@ export default new Vuex.Store({
       nodes: [],
       background: []
     }],
-    nodePos: {}
+    nodePos: {},
+    onDrag: false
   },
   mutations: {
     ADD_NODE (_state, { pageIndex, node }) {
@@ -29,6 +30,9 @@ export default new Vuex.Store({
     },
     SET_NODE_POS (_state, pos) {
       _state.nodePos = pos
+    },
+    SET_ON_DRAG (_state, value) {
+      _state.onDrag = value
     }
   },
   actions: {

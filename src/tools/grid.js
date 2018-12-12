@@ -31,9 +31,13 @@ export function drawGrid (context, stepx, stepy) {
   }
 }
 
-export function highlight (context, stepx, stepy, x1, y1, x2, y2, x3, y3) {
+export function resetGrid (context, stepx, stepy) {
   context.clearRect(0, 0, context.canvas.width, context.canvas.height)
   drawGrid(context, stepx, stepy)
+}
+
+export function highlight (context, stepx, stepy, x1, y1, x2, y2, x3, y3) {
+  resetGrid(context, stepx, stepy)
 
   for (let i = stepx; i < context.canvas.width; i += stepx) {
     if (x1 === i || x2 === i || x3 === i) {

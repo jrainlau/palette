@@ -1,7 +1,7 @@
 <template>
   <div
     class="comp-text comp-instance"
-    :style="`width: ${info.width}px; height: ${info.height}px; top: ${info.y}px; left: ${info.x}px`"
+    :style="styleObj"
     @mousedown="dragStart">
     {{info.content}}
   </div>
@@ -33,6 +33,16 @@ export default {
       info: this.node
     }
   },
+  computed: {
+    styleObj () {
+      return `
+        width: ${this.info.width}px;
+        height: ${this.info.height}px;
+        top: ${this.info.y}px;
+        left: ${this.info.x}px;
+      `
+    }
+  },
   methods: {
     dragStart (e) {
       document.addEventListener('mousemove', this.onDrag)
@@ -41,6 +51,7 @@ export default {
       this.hasDragged = false
       this.posStart.x = e.x
       this.posStart.y = e.y
+      this.$store.commit('SET_ON_DRAG', true)
     },
     onDrag (e) {
       if (this.draggable) {
@@ -68,6 +79,7 @@ export default {
       if (this.hasDragged) {
         this.$store.dispatch('updateNode', this.info)
       }
+      this.$store.commit('SET_ON_DRAG', false)
       document.removeEventListener('mousemove', this.onDrag)
       document.removeEventListener('mouseup', this.dragEnd)
     }
