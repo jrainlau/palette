@@ -1,7 +1,7 @@
 <template>
   <div
     :ref="refId"
-    :class="`comp-text comp-instance ${editMode ? 'edit-mode' : ''}`"
+    :class="`comp-text comp-instance ${onFocus ? 'on-focus' : ''}`"
     :style="styleObj"
     @mousedown="dragStart">
     {{info.content}}
@@ -23,7 +23,7 @@ export default {
     return {
       draggable: false,
       hasDragged: false,
-      editMode: true,
+      onFocus: true,
       posStart: {
         x: 0,
         y: 0
@@ -49,7 +49,7 @@ export default {
   mounted () {
     document.addEventListener('mousedown', (e) => {
       if (e.target !== this.$refs[this.refId]) {
-        this.editMode = false
+        this.onFocus = false
       }
     })
   },
@@ -68,7 +68,7 @@ export default {
       document.addEventListener('mouseup', this.dragEnd)
       this.draggable = true
       this.hasDragged = false
-      this.editMode = true
+      this.onFocus = true
       this.posStart.x = e.x
       this.posStart.y = e.y
       this.$store.commit('SET_ON_DRAG', true)
