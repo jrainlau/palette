@@ -6,3 +6,13 @@ body {
   height: 100%;
   overflow: hidden;
 }
+
+.comp-instance {
+  position: absolute;
+  box-sizing: border-box;
+  user-select: none;
+  border: 2px solid transparent;
+  &.edit-mode {
+    border: 2px solid #aaa;
+  }
+}

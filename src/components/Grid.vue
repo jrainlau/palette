@@ -47,9 +47,6 @@ export default {
         setTimeout(() => {
           resetGrid(this.context, this.stepX, this.stepY)
         }, 100)
-      } else if (val && this.nodePos.centre) {
-        const { elTop, elLeft, elRight, elBottom, centre } = this.nodePos
-        highlight(this.context, this.stepX, this.stepY, elLeft, elBottom, elRight, elTop, centre.x, centre.y)
       }
     }
   }

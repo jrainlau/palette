@@ -1,6 +1,7 @@
 <template>
   <div
-    class="comp-text comp-instance"
+    :ref="refId"
+    :class="`comp-text comp-instance ${editMode ? 'edit-mode' : ''}`"
     :style="styleObj"
     @mousedown="dragStart">
     {{info.content}}
@@ -22,6 +23,7 @@ export default {
     return {
       draggable: false,
       hasDragged: false,
+      editMode: true,
       posStart: {
         x: 0,
         y: 0
@@ -30,7 +32,8 @@ export default {
         x: 0,
         y: 0
       },
-      info: this.node
+      info: this.node,
+      refId: (Math.random() * 1000000).toFixed(0)
     }
   },
   computed: {
@@ -43,17 +46,35 @@ export default {
       `
     }
   },
+  mounted () {
+    document.addEventListener('mousedown', (e) => {
+      if (e.target !== this.$refs[this.refId]) {
+        this.editMode = false
+      }
+    })
+  },
   methods: {
+    setNodePos () {
+      const { width, height, x, y } = this.info
+      const nodePos = getRectInfo({ width, height, top: y, left: x })
+      throttle(() => {
+        this.$store.dispatch('setNodePos', nodePos)
+      }, 100, 200)()
+    },
     dragStart (e) {
+      this.setNodePos()
+
       document.addEventListener('mousemove', this.onDrag)
       document.addEventListener('mouseup', this.dragEnd)
       this.draggable = true
       this.hasDragged = false
+      this.editMode = true
       this.posStart.x = e.x
       this.posStart.y = e.y
       this.$store.commit('SET_ON_DRAG', true)
     },
     onDrag (e) {
+      e.stopPropagation()
       if (this.draggable) {
         const deltaX = e.x - this.posStart.x
         const deltaY = e.y - this.posStart.y
@@ -65,14 +86,11 @@ export default {
           this.info[type] = value
         })
 
-        const { width, height, x, y } = this.info
-        const nodePos = getRectInfo({ width, height, top: y, left: x })
-        throttle(() => {
-          this.$store.dispatch('setNodePos', nodePos)
-        }, 100, 200)()
+        this.setNodePos()
       }
     },
     dragEnd (e) {
+      e.stopPropagation()
       this.draggable = false
       this.posEnd.x = this.info.x
       this.posEnd.y = this.info.y
@@ -88,9 +106,7 @@ export default {
 </script>
 
 <style lang="less">
-.comp-instance {
-  position: absolute;
-  border: 2px solid #aaa;
-  box-sizing: border-box;
+.comp-text {
+  text-align: center;
 }
 </style>
