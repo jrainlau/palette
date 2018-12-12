@@ -13,7 +13,8 @@ export default new Vuex.Store({
       groups: [],
       nodes: [],
       background: []
-    }]
+    }],
+    nodePos: {}
   },
   mutations: {
     ADD_NODE (_state, { pageIndex, node }) {
@@ -25,6 +26,9 @@ export default new Vuex.Store({
           _state.pages[pageIndex].nodes[i] = node
         }
       })
+    },
+    SET_NODE_POS (_state, pos) {
+      _state.nodePos = pos
     }
   },
   actions: {
@@ -37,6 +41,9 @@ export default new Vuex.Store({
     updateNode ({ commit }, node) {
       const { pageIndex } = node
       commit('UPDATE_NODE', { pageIndex, node })
+    },
+    setNodePos ({ commit }, pos) {
+      commit('SET_NODE_POS', pos)
     }
   }
 })

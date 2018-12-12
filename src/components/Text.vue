@@ -8,6 +8,10 @@
 </template>
 
 <script>
+import getRectInfo from '@/tools/getRectInfo'
+import { megnet } from '@/tools/grid'
+import throttle from '@/tools/throttle'
+
 export default {
   props: {
     node: {
@@ -45,6 +49,16 @@ export default {
         this.info.y = this.posEnd.y + deltaY
         this.info.x = this.posEnd.x + deltaX
         this.hasDragged = true
+
+        megnet(this.info, 5, ({ type, value }) => {
+          this.info[type] = value
+        })
+
+        const { width, height, x, y } = this.info
+        const nodePos = getRectInfo({ width, height, top: y, left: x })
+        throttle(() => {
+          this.$store.dispatch('setNodePos', nodePos)
+        }, 100, 200)()
       }
     },
     dragEnd (e) {
@@ -65,5 +79,6 @@ export default {
 .comp-instance {
   position: absolute;
   border: 2px solid #aaa;
+  box-sizing: border-box;
 }
 </style>

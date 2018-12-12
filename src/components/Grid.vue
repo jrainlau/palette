@@ -5,6 +5,9 @@
 </template>
 
 <script>
+import { drawGrid, highlight, magnet } from '@/tools/grid'
+import { mapState } from 'vuex'
+
 export default {
   props: {
     color: {
@@ -20,29 +23,25 @@ export default {
       default: 70
     }
   },
-  mounted () {
-    const canvas = this.$refs.canvas
-    const context = canvas.getContext('2d')
-
-    function drawGrid (context, color, stepx, stepy) {
-      context.strokeStyle = color
-      context.lineWidth = 0.5
-
-      for (let i = stepx + 0.5; i < context.canvas.width; i += stepx) {
-        context.beginPath()
-        context.moveTo(i, 0)
-        context.lineTo(i, context.canvas.height)
-        context.stroke()
-      }
-      for (let i = stepy + 0.5; i < context.canvas.height; i += stepy) {
-        context.beginPath()
-        context.moveTo(0, i)
-        context.lineTo(context.canvas.width, i)
-        context.stroke()
-      }
+  data () {
+    return {
+      canvas: null,
+      context: null
     }
-
-    drawGrid(context, this.color, this.stepX, this.stepY)
+  },
+  computed: {
+    ...mapState(['nodePos'])
+  },
+  mounted () {
+    this.canvas = this.$refs.canvas
+    this.context = this.canvas.getContext('2d')
+    drawGrid(this.context, this.stepX, this.stepY)
+  },
+  watch: {
+    nodePos (val) {
+      const { elTop, elLeft, elRight, elBottom, centre } = val
+      highlight(this.context, this.stepX, this.stepY, elLeft, elBottom, elRight, elTop, centre.x, centre.y)
+    }
   }
 }
 </script>
