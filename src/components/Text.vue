@@ -23,6 +23,10 @@ import Transform from '@/components/TransformHandler'
 
 let xLock = false
 let yLock = false
+let lockedXValue = 0
+let lockedYValue = 0
+let xResizable = true
+let yResizable = true
 
 export default {
   props: {
@@ -44,7 +48,9 @@ export default {
         y: 0
       },
       refId: (Math.random() * 1000000).toFixed(0),
-      basicStyle: {}
+      basicStyle: {},
+      minHeight: 20,
+      minWidth: 20
     }
   },
   computed: {
@@ -120,22 +126,41 @@ export default {
       this.setBasicStyle()
     },
     onResize ({ direction, deltaX, deltaY, affectLeft, affectTop }) {
-      if (affectTop) {
+      if (this.node.width <= this.minWidth) {
+        if (!xLock) {
+          lockedXValue = deltaX
+          xLock = true
+        }
+        xResizable = affectLeft ? lockedXValue - deltaX > 0 : lockedXValue - deltaX < 0
+      }
+      if (this.node.height <= this.minHeight) {
+        if (!yLock) {
+          lockedYValue = deltaY
+          yLock = true
+        }
+        yResizable = affectTop ? lockedYValue - deltaY > 0 : lockedYValue - deltaY < 0
+      }
+
+      if (affectTop && yResizable) {
         deltaY = -deltaY
         this.node.y = this.basicStyle.top - deltaY
       }
-      if (affectLeft) {
+      if (affectLeft && xResizable) {
         deltaX = -deltaX
         this.node.x = this.basicStyle.left - deltaX
       }
 
-      if (direction === 'horizontal') {
+      if (direction === 'horizontal' && xResizable) {
         this.node.width = this.basicStyle.width + deltaX
-      } else if (direction === 'vertical') {
+      } else if (direction === 'vertical' && yResizable) {
         this.node.height = this.basicStyle.height + deltaY
       } else if (direction === 'all') {
-        this.node.width = this.basicStyle.width + deltaX
-        this.node.height = this.basicStyle.height + deltaY
+        if (xResizable) {
+          this.node.width = this.basicStyle.width + deltaX
+        }
+        if (yResizable) {
+          this.node.height = this.basicStyle.height + deltaY
+        }
       }
 
       this.updateCurNodePos()
@@ -144,6 +169,12 @@ export default {
       this.$store.dispatch('updateNode', this.node)
       this.posEnd.x = this.node.x
       this.posEnd.y = this.node.y
+      xLock = false
+      yLock = false
+      lockedXValue = 0
+      lockedYValue = 0
+      xResizable = true
+      yResizable = true
     },
     setBasicStyle () {
       this.basicStyle = {
