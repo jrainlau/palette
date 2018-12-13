@@ -60,27 +60,31 @@ export function highlight (context, stepx, stepy, x1, y1, x2, y2, x3, y3) {
   }
 }
 
-export function megnet (elInfo, gap, cb) {
+export function megnet (elInfo, gap, cb, hside = 'all', vside = 'all') {
   const { width, height, x, y } = elInfo
   const { centre, elTop, elRight, elBottom, elLeft } = getRectInfo({ width, height, top: y, left: x })
   const result = {
     type: '',
-    value: null
+    value: null,
+    gridLine: null
   }
 
   for (let i = 0, len = xCoordinates.length; i < len; i++) {
     const _x = xCoordinates[i]
     result.type = 'x'
-    if (Math.abs(elLeft - _x) < gap) {
+    if ((hside === 'all' || hside === 'left') && Math.abs(elLeft - _x) < gap) {
       result.value = _x
+      result.gridLine = _x
       cb(result)
     }
-    if (Math.abs(elRight - _x) < gap) {
+    if ((hside === 'all' || hside === 'right') && Math.abs(elRight - _x) < gap) {
       result.value = _x - width
+      result.gridLine = _x
       cb(result)
     }
-    if (Math.abs(centre.x - _x) < gap) {
+    if (hside === 'all' && Math.abs(centre.x - _x) < gap) {
       result.value = _x - width / 2
+      result.gridLine = _x
       cb(result)
     }
   }
@@ -88,16 +92,19 @@ export function megnet (elInfo, gap, cb) {
   for (let i = 0, len = yCoordinates.length; i < len; i++) {
     const _y = yCoordinates[i]
     result.type = 'y'
-    if (Math.abs(elTop - _y) < gap) {
+    if ((vside === 'all' || vside === 'top') && Math.abs(elTop - _y) < gap) {
       result.value = _y
+      result.gridLine = _y
       cb(result)
     }
-    if (Math.abs(elBottom - _y) < gap) {
+    if ((vside === 'all' || vside === 'bottom') && Math.abs(elBottom - _y) < gap) {
       result.value = _y - height
+      result.gridLine = _y
       cb(result)
     }
-    if (Math.abs(centre.y - _y) < gap) {
+    if (vside === 'all' && Math.abs(centre.y - _y) < gap) {
       result.value = _y - height / 2
+      result.gridLine = _y
       cb(result)
     }
   }

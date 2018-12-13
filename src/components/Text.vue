@@ -126,20 +126,9 @@ export default {
       this.setBasicStyle()
     },
     onResize ({ direction, deltaX, deltaY, affectLeft, affectTop }) {
-      if (this.node.width <= this.minWidth) {
-        if (!xLock) {
-          lockedXValue = deltaX
-          xLock = true
-        }
-        xResizable = affectLeft ? lockedXValue - deltaX > 0 : lockedXValue - deltaX < 0
-      }
-      if (this.node.height <= this.minHeight) {
-        if (!yLock) {
-          lockedYValue = deltaY
-          yLock = true
-        }
-        yResizable = affectTop ? lockedYValue - deltaY > 0 : lockedYValue - deltaY < 0
-      }
+      let hside = affectLeft ? 'left' : 'right'
+      let vside = affectTop ? 'top' : 'bottom'
+      this.resizeLimit(affectLeft, affectTop, deltaX, deltaY)
 
       if (affectTop && yResizable) {
         deltaY = -deltaY
@@ -163,6 +152,22 @@ export default {
         }
       }
 
+      megnet(this.node, 5, ({ type, value, gridLine }) => {
+        if (type === 'x' && hside === 'right') {
+          this.node.width = gridLine - this.node.x
+        } else if (type === 'x' && hside === 'left') {
+          const xGap = this.node.x - gridLine
+          this.node.x = gridLine
+          this.node.width += xGap
+        } else if (type === 'y' && vside === 'bottom') {
+          this.node.height = gridLine - this.node.y
+        } else if (type === 'y' && vside === 'top') {
+          const yGap = this.node.y - gridLine
+          this.node.y = gridLine
+          this.node.height += yGap
+        }
+      }, hside, vside)
+
       this.updateCurNodePos()
     },
     onResizeEnd () {
@@ -182,6 +187,22 @@ export default {
         height: this.node.height,
         top: this.node.y,
         left: this.node.x
+      }
+    },
+    resizeLimit (affectLeft, affectTop, deltaX, deltaY) {
+      if (this.node.width <= this.minWidth) {
+        if (!xLock) {
+          lockedXValue = deltaX
+          xLock = true
+        }
+        xResizable = affectLeft ? lockedXValue - deltaX > 0 : lockedXValue - deltaX < 0
+      }
+      if (this.node.height <= this.minHeight) {
+        if (!yLock) {
+          lockedYValue = deltaY
+          yLock = true
+        }
+        yResizable = affectTop ? lockedYValue - deltaY > 0 : lockedYValue - deltaY < 0
       }
     }
   }
