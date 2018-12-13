@@ -36,18 +36,16 @@ export default {
     this.canvas = this.$refs.canvas
     this.context = this.canvas.getContext('2d')
     drawGrid(this.context, this.stepX, this.stepY)
+    document.addEventListener('mouseup', () => {
+      setTimeout(() => {
+        resetGrid(this.context, this.stepX, this.stepY)
+      }, 100)
+    })
   },
   watch: {
     nodePos (val) {
       const { elTop, elLeft, elRight, elBottom, centre } = val
       highlight(this.context, this.stepX, this.stepY, elLeft, elBottom, elRight, elTop, centre.x, centre.y)
-    },
-    onDrag (val) {
-      if (!val) {
-        setTimeout(() => {
-          resetGrid(this.context, this.stepX, this.stepY)
-        }, 100)
-      }
     }
   }
 }

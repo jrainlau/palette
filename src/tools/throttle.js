@@ -1,9 +1,8 @@
-export default function throttle (fn, delay, timeout) {
+export default function throttle (fn, delay = 50, timeout = 100) {
   let timer = null
   let tStart
-  return function () {
+  return function (...args) {
     const context = this
-    const args = arguments
     const tCurr = +new Date()
     clearTimeout(timer)
     if (!tStart) {

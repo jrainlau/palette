@@ -28,7 +28,7 @@ export default new Vuex.Store({
         }
       })
     },
-    SET_NODE_POS (_state, pos) {
+    UPDATE_CUR_NODE_POS (_state, pos) {
       _state.nodePos = pos
     },
     SET_ON_DRAG (_state, value) {
@@ -46,8 +46,8 @@ export default new Vuex.Store({
       const { pageIndex } = node
       commit('UPDATE_NODE', { pageIndex, node })
     },
-    setNodePos ({ commit }, pos) {
-      commit('SET_NODE_POS', pos)
+    updateCurNodePos ({ commit }, pos) {
+      commit('UPDATE_CUR_NODE_POS', pos)
     }
   }
 })
