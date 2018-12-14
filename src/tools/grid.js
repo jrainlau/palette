@@ -41,11 +41,11 @@ export function resetGrid (context, stepx, stepy) {
   drawGrid(context, stepx, stepy)
 }
 
-export function highlight (context, stepx, stepy, x1, y1, x2, y2, x3, y3) {
+export function highlight (context, stepx, stepy, x1, y1, x2, y2, x3, y3, rotate) {
   resetGrid(context, stepx, stepy)
 
   for (let i = stepx; i < context.canvas.width; i += stepx) {
-    if (x1 === i || x2 === i || x3 === i) {
+    if ((!rotate && (x1 === i || x2 === i)) || x3 === i) {
       context.strokeStyle = 'blue'
       context.lineWidth = 1
       drawVerticalLine(context, i)
@@ -53,7 +53,7 @@ export function highlight (context, stepx, stepy, x1, y1, x2, y2, x3, y3) {
   }
 
   for (let i = stepy; i < context.canvas.height; i += stepy) {
-    if (y1 === i || y2 === i || y3 === i) {
+    if ((!rotate && (y1 === i || y2 === i)) || y3 === i) {
       context.strokeStyle = 'blue'
       context.lineWidth = 1
       drawHorizontalLine(context, i)
@@ -62,8 +62,8 @@ export function highlight (context, stepx, stepy, x1, y1, x2, y2, x3, y3) {
 }
 
 export function megnet (elInfo, gap, cb, hside = 'all', vside = 'all') {
-  const { width, height, x, y } = elInfo
-  const { centre, elTop, elRight, elBottom, elLeft } = getRectInfo({ width, height, top: y, left: x })
+  const { width, height } = elInfo.style
+  const { centre, elTop, elRight, elBottom, elLeft, rotate } = getRectInfo(elInfo.style)
   const result = {
     type: '',
     value: null,
@@ -72,13 +72,13 @@ export function megnet (elInfo, gap, cb, hside = 'all', vside = 'all') {
 
   for (let i = 0, len = xCoordinates.length; i < len; i++) {
     const _x = xCoordinates[i]
-    result.type = 'x'
-    if ((hside === 'all' || hside === 'left') && approch(elLeft, _x, gap)) {
+    result.type = 'left'
+    if ((hside === 'all' || hside === 'left') && approch(elLeft, _x, gap) && !rotate) {
       result.value = _x
       result.gridLine = _x
       cb(result)
     }
-    if ((hside === 'all' || hside === 'right') && approch(elRight, _x, gap)) {
+    if ((hside === 'all' || hside === 'right') && approch(elRight, _x, gap) && !rotate) {
       result.value = _x - width
       result.gridLine = _x
       cb(result)
@@ -92,13 +92,13 @@ export function megnet (elInfo, gap, cb, hside = 'all', vside = 'all') {
 
   for (let i = 0, len = yCoordinates.length; i < len; i++) {
     const _y = yCoordinates[i]
-    result.type = 'y'
-    if ((vside === 'all' || vside === 'top') && approch(elTop, _y, gap)) {
+    result.type = 'top'
+    if ((vside === 'all' || vside === 'top') && approch(elTop, _y, gap) && !rotate) {
       result.value = _y
       result.gridLine = _y
       cb(result)
     }
-    if ((vside === 'all' || vside === 'bottom') && approch(elBottom, _y, gap)) {
+    if ((vside === 'all' || vside === 'bottom') && approch(elBottom, _y, gap) && !rotate) {
       result.value = _y - height
       result.gridLine = _y
       cb(result)

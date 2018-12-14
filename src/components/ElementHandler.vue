@@ -7,7 +7,7 @@
     <div class="comp-text-content">
       {{node.content}}
     </div>
-    <Transform
+    <TransformHandler
       v-if="onFocus"
       @resizeStart="onResizeStart"
       @resize="onResize"
@@ -21,7 +21,7 @@ import getRectInfo from '@/tools/getRectInfo'
 import { megnet } from '@/tools/grid'
 import throttle from '@/tools/throttle'
 import { approch, cartesian2polar } from '@/tools/math'
-import Transform from '@/components/TransformHandler'
+import TransformHandler from '@/components/TransformHandler'
 
 let xLock = false
 let yLock = false
@@ -58,17 +58,21 @@ export default {
   computed: {
     styleObj () {
       return `
-        width: ${this.node.width}px;
-        height: ${this.node.height}px;
-        line-height: ${this.node.height}px;
-        top: ${this.node.y}px;
-        left: ${this.node.x}px;
-        transform: rotate(${this.node.rotate}deg)
+        width: ${this.node.style.width}px;
+        height: ${this.node.style.height}px;
+        line-height: ${this.node.style.lineHeight}px;
+        top: ${this.node.style.top}px;
+        left: ${this.node.style.left}px;
+        z-index: ${this.node.style.zIndex};
+        border: ${this.onFocus ? '' : this.node.style.border};
+        transform: rotate(${this.node.style.rotate}deg);
+        color: ${this.node.style.color};
+        text-align: ${this.node.style.textAlign};
       `
     }
   },
   components: {
-    Transform
+    TransformHandler
   },
   mounted () {
     document.addEventListener('mousedown', (e) => {
@@ -79,8 +83,7 @@ export default {
   },
   methods: {
     updateCurNodePos () {
-      const { width, height, x, y } = this.node
-      const nodePos = getRectInfo({ width, height, top: y, left: x })
+      const nodePos = getRectInfo(this.node.style)
       this.$store.dispatch('updateCurNodePos', nodePos)
     },
     dragStart (e) {
@@ -102,12 +105,12 @@ export default {
       if (this.draggable) {
         const deltaX = e.x - this.posStart.x
         const deltaY = e.y - this.posStart.y
-        this.node.y = this.posEnd.y + deltaY
-        this.node.x = this.posEnd.x + deltaX
+        this.node.style.top = this.posEnd.y + deltaY
+        this.node.style.left = this.posEnd.x + deltaX
         this.hasDragged = true
 
         megnet(this.node, 5, ({ type, value }) => {
-          this.node[type] = value
+          this.node.style[type] = value
         })
 
         this.updateCurNodePos()
@@ -116,8 +119,8 @@ export default {
     dragEnd (e) {
       e.stopPropagation()
       this.draggable = false
-      this.posEnd.x = this.node.x
-      this.posEnd.y = this.node.y
+      this.posEnd.x = this.node.style.left
+      this.posEnd.y = this.node.style.top
       if (this.hasDragged) {
         this.$store.dispatch('updateNode', this.node)
       }
@@ -135,39 +138,39 @@ export default {
 
       if (affectTop && yResizable) {
         deltaY = -deltaY
-        this.node.y = this.basicStyle.top - deltaY
+        this.node.style.top = this.basicStyle.top - deltaY
       }
       if (affectLeft && xResizable) {
         deltaX = -deltaX
-        this.node.x = this.basicStyle.left - deltaX
+        this.node.style.left = this.basicStyle.left - deltaX
       }
 
       if (direction === 'horizontal' && xResizable) {
-        this.node.width = this.basicStyle.width + deltaX
+        this.node.style.width = this.basicStyle.width + deltaX
       } else if (direction === 'vertical' && yResizable) {
-        this.node.height = this.basicStyle.height + deltaY
+        this.node.style.height = this.basicStyle.height + deltaY
       } else if (direction === 'all') {
         if (xResizable) {
-          this.node.width = this.basicStyle.width + deltaX
+          this.node.style.width = this.basicStyle.width + deltaX
         }
         if (yResizable) {
-          this.node.height = this.basicStyle.height + deltaY
+          this.node.style.height = this.basicStyle.height + deltaY
         }
       }
 
       megnet(this.node, 5, ({ type, value, gridLine }) => {
         if (type === 'x' && hside === 'right') {
-          this.node.width = gridLine - this.node.x
+          this.node.style.width = gridLine - this.node.style.left
         } else if (type === 'x' && hside === 'left') {
-          const xGap = this.node.x - gridLine
-          this.node.x = gridLine
-          this.node.width += xGap
+          const xGap = this.node.style.left - gridLine
+          this.node.style.left = gridLine
+          this.node.style.width += xGap
         } else if (type === 'y' && vside === 'bottom') {
-          this.node.height = gridLine - this.node.y
+          this.node.style.height = gridLine - this.node.style.top
         } else if (type === 'y' && vside === 'top') {
-          const yGap = this.node.y - gridLine
-          this.node.y = gridLine
-          this.node.height += yGap
+          const yGap = this.node.style.top - gridLine
+          this.node.style.top = gridLine
+          this.node.style.height += yGap
         }
       }, hside, vside)
 
@@ -175,8 +178,8 @@ export default {
     },
     onResizeEnd () {
       this.$store.dispatch('updateNode', this.node)
-      this.posEnd.x = this.node.x
-      this.posEnd.y = this.node.y
+      this.posEnd.x = this.node.style.left
+      this.posEnd.y = this.node.style.top
       xLock = false
       yLock = false
       lockedXValue = 0
@@ -187,35 +190,35 @@ export default {
     onRotate ({ deltaX, deltaY }) {
       const [x, y] = [deltaX + 100, -deltaY]
       let rotateRate = 360 - cartesian2polar(x, y)
-      this.node.rotate = rotateRate + this.basicStyle.rotate
-      if (this.node.rotate > 360) {
-        this.node.rotate = this.node.rotate - 360
+      this.node.style.rotate = rotateRate + this.basicStyle.rotate
+      if (this.node.style.rotate > 360) {
+        this.node.style.rotate = this.node.style.rotate - 360
       }
       ;[0, 45, 90, 135, 180, 225, 270, 315].forEach(angle => {
-        if (approch(this.node.rotate, angle)) {
-          this.node.rotate = angle
+        if (approch(this.node.style.rotate, angle)) {
+          this.node.style.rotate = angle
         }
       })
       this.updateCurNodePos()
     },
     setBasicStyle () {
       this.basicStyle = {
-        width: this.node.width,
-        height: this.node.height,
-        top: this.node.y,
-        left: this.node.x,
-        rotate: this.node.rotate
+        width: this.node.style.width,
+        height: this.node.style.height,
+        top: this.node.style.top,
+        left: this.node.style.left,
+        rotate: this.node.style.rotate
       }
     },
     resizeLimit (affectLeft, affectTop, deltaX, deltaY) {
-      if (this.node.width <= this.minWidth) {
+      if (this.node.style.width <= this.minWidth) {
         if (!xLock) {
           lockedXValue = deltaX
           xLock = true
         }
         xResizable = affectLeft ? lockedXValue - deltaX > 0 : lockedXValue - deltaX < 0
       }
-      if (this.node.height <= this.minHeight) {
+      if (this.node.style.height <= this.minHeight) {
         if (!yLock) {
           lockedYValue = deltaY
           yLock = true
@@ -226,9 +229,3 @@ export default {
   }
 }
 </script>
-
-<style lang="less">
-.comp-text {
-  text-align: center;
-}
-</style>

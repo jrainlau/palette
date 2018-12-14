@@ -1,5 +1,5 @@
 export default function getRectInfo (elInfo) {
-  const { top, left, width, height } = elInfo
+  let { top, left, width, height, rotate } = elInfo
   return {
     elLeft: left,
     elRight: left + width,
@@ -8,6 +8,7 @@ export default function getRectInfo (elInfo) {
     centre: {
       x: left + width / 2,
       y: top + height / 2
-    }
+    },
+    rotate
   }
 }

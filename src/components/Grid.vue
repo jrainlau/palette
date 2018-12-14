@@ -44,8 +44,8 @@ export default {
   },
   watch: {
     nodePos (val) {
-      const { elTop, elLeft, elRight, elBottom, centre } = val
-      highlight(this.context, this.stepX, this.stepY, elLeft, elBottom, elRight, elTop, centre.x, centre.y)
+      const { elTop, elLeft, elRight, elBottom, centre, rotate } = val
+      highlight(this.context, this.stepX, this.stepY, elLeft, elBottom, elRight, elTop, centre.x, centre.y, rotate)
     }
   }
 }

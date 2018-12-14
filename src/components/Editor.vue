@@ -2,7 +2,7 @@
   <div class="editor">
     <div class="editor-main">
       <Grid />
-      <PText
+      <ElementHandler
         v-for="(node, index) in nodes"
         :key="index"
         :node="node" />
@@ -12,7 +12,7 @@
 
 <script>
 import { mapState } from 'vuex'
-import PText from './Text'
+import ElementHandler from './ElementHandler'
 import Grid from '@/components/Grid'
 
 export default {
@@ -22,7 +22,7 @@ export default {
     })
   },
   components: {
-    PText,
+    ElementHandler,
     Grid
   }
 }

@@ -11,6 +11,8 @@
 </template>
 
 <script>
+let zIndex = 0
+
 export default {
   data () {
     return {
@@ -19,18 +21,25 @@ export default {
   },
   methods: {
     addNode (type) {
+      zIndex++
       if (type === 'text') {
         this.$store.dispatch('addNode', {
           pageIndex: 0,
           node: {
             type,
-            x: 0,
-            y: 0,
-            depth: 1,
-            width: 150,
-            height: 30,
-            rotate: 0,
-            content: 'Text'
+            content: 'Text',
+            style: {
+              width: 150,
+              height: 30,
+              lineHeight: 30,
+              left: 0,
+              top: 0,
+              zIndex,
+              border: 'none',
+              rotate: 0,
+              color: '#333',
+              textAlign: 'center'
+            }
           }
         })
       }
