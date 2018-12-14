@@ -1,5 +1,6 @@
 export default function getRectInfo (elInfo) {
   let { top, left, width, height, rotate } = elInfo
+  rotate = rotate % 180
   return {
     elLeft: left,
     elRight: left + width,
