@@ -1,4 +1,5 @@
 import getRectInfo from './getRectInfo'
+import { approch } from './math'
 
 export const xCoordinates = []
 export const yCoordinates = []
@@ -72,17 +73,17 @@ export function megnet (elInfo, gap, cb, hside = 'all', vside = 'all') {
   for (let i = 0, len = xCoordinates.length; i < len; i++) {
     const _x = xCoordinates[i]
     result.type = 'x'
-    if ((hside === 'all' || hside === 'left') && Math.abs(elLeft - _x) < gap) {
+    if ((hside === 'all' || hside === 'left') && approch(elLeft, _x, gap)) {
       result.value = _x
       result.gridLine = _x
       cb(result)
     }
-    if ((hside === 'all' || hside === 'right') && Math.abs(elRight - _x) < gap) {
+    if ((hside === 'all' || hside === 'right') && approch(elRight, _x, gap)) {
       result.value = _x - width
       result.gridLine = _x
       cb(result)
     }
-    if (hside === 'all' && Math.abs(centre.x - _x) < gap) {
+    if (hside === 'all' && approch(centre.x, _x, gap)) {
       result.value = _x - width / 2
       result.gridLine = _x
       cb(result)
@@ -92,17 +93,17 @@ export function megnet (elInfo, gap, cb, hside = 'all', vside = 'all') {
   for (let i = 0, len = yCoordinates.length; i < len; i++) {
     const _y = yCoordinates[i]
     result.type = 'y'
-    if ((vside === 'all' || vside === 'top') && Math.abs(elTop - _y) < gap) {
+    if ((vside === 'all' || vside === 'top') && approch(elTop, _y, gap)) {
       result.value = _y
       result.gridLine = _y
       cb(result)
     }
-    if ((vside === 'all' || vside === 'bottom') && Math.abs(elBottom - _y) < gap) {
+    if ((vside === 'all' || vside === 'bottom') && approch(elBottom, _y, gap)) {
       result.value = _y - height
       result.gridLine = _y
       cb(result)
     }
-    if (vside === 'all' && Math.abs(centre.y - _y) < gap) {
+    if (vside === 'all' && approch(centre.y, _y, gap)) {
       result.value = _y - height / 2
       result.gridLine = _y
       cb(result)

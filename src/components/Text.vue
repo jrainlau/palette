@@ -187,12 +187,15 @@ export default {
     onRotate ({ deltaX, deltaY }) {
       const [x, y] = [deltaX + 100, -deltaY]
       let rotateRate = 360 - cartesian2polar(x, y)
+      this.node.rotate = rotateRate + this.basicStyle.rotate
+      if (this.node.rotate > 360) {
+        this.node.rotate = this.node.rotate - 360
+      }
       ;[0, 45, 90, 135, 180, 225, 270, 315].forEach(angle => {
-        if (approch(rotateRate, angle)) {
-          rotateRate = angle
+        if (approch(this.node.rotate, angle)) {
+          this.node.rotate = angle
         }
       })
-      this.node.rotate = rotateRate
       this.updateCurNodePos()
     },
     setBasicStyle () {
@@ -200,7 +203,8 @@ export default {
         width: this.node.width,
         height: this.node.height,
         top: this.node.y,
-        left: this.node.x
+        left: this.node.x,
+        rotate: this.node.rotate
       }
     },
     resizeLimit (affectLeft, affectTop, deltaX, deltaY) {
