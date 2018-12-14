@@ -11,7 +11,8 @@
       v-if="onFocus"
       @resizeStart="onResizeStart"
       @resize="onResize"
-      @resizeEnd="onResizeEnd" />
+      @resizeEnd="onResizeEnd"
+      @rotate="onRotate" />
   </div>
 </template>
 
@@ -19,6 +20,7 @@
 import getRectInfo from '@/tools/getRectInfo'
 import { megnet } from '@/tools/grid'
 import throttle from '@/tools/throttle'
+import { approch, cartesian2polar } from '@/tools/math'
 import Transform from '@/components/TransformHandler'
 
 let xLock = false
@@ -61,6 +63,7 @@ export default {
         line-height: ${this.node.height}px;
         top: ${this.node.y}px;
         left: ${this.node.x}px;
+        transform: rotate(${this.node.rotate}deg)
       `
     }
   },
@@ -180,6 +183,17 @@ export default {
       lockedYValue = 0
       xResizable = true
       yResizable = true
+    },
+    onRotate ({ deltaX, deltaY }) {
+      const [x, y] = [deltaX + 100, -deltaY]
+      let rotateRate = 360 - cartesian2polar(x, y)
+      ;[0, 45, 90, 135, 180, 225, 270, 315].forEach(angle => {
+        if (approch(rotateRate, angle)) {
+          rotateRate = angle
+        }
+      })
+      this.node.rotate = rotateRate
+      this.updateCurNodePos()
     },
     setBasicStyle () {
       this.basicStyle = {

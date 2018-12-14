@@ -8,7 +8,7 @@
     <div class="anchor anchor-s" @mousedown="onMouseDown($event, 'vertical')"></div>
     <div class="anchor anchor-sw" @mousedown="onMouseDown($event, 'all', true)"></div>
     <div class="anchor anchor-w" @mousedown="onMouseDown($event, 'horizontal', true)"></div>
-    <div class="anchor anchor-rotate"></div>
+    <div class="anchor anchor-rotate" @mousedown="onMouseDown($event, 'rotate')"></div>
   </div>
 </template>
 
@@ -76,7 +76,10 @@ export default {
       }, 20, 20)
       document.addEventListener('mousemove', this.throttleResize)
       document.addEventListener('mouseup', this.onMouseUp)
-      this.$emit('resizeStart')
+      this.$emit('resizeStart', {
+        startX: this.startX,
+        startY: this.startY
+      })
     },
     onMouseUp (e) {
       e.stopPropagation()
@@ -87,7 +90,7 @@ export default {
     },
     resize (e) {
       e.stopPropagation()
-      if (this.onResize) {
+      if (this.onResize && this.direction !== 'rotate') {
         this.deltaX = e.x - this.startX
         this.deltaY = e.y - this.startY
         this.$emit('resize', {
@@ -96,6 +99,13 @@ export default {
           deltaY: this.deltaY,
           affectLeft: this.affectLeft,
           affectTop: this.affectTop
+        })
+      } else if (this.onResize && this.direction === 'rotate') {
+        this.deltaX = e.x - this.startX
+        this.deltaY = e.y - this.startY
+        this.$emit('rotate', {
+          deltaX: this.deltaX,
+          deltaY: this.deltaY
         })
       }
     }

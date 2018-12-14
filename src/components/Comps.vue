@@ -29,6 +29,7 @@ export default {
             depth: 1,
             width: 150,
             height: 30,
+            rotate: 0,
             content: 'Text'
           }
         })
