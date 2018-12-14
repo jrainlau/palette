@@ -159,15 +159,15 @@ export default {
       }
 
       megnet(this.node, 5, ({ type, value, gridLine }) => {
-        if (type === 'x' && hside === 'right') {
+        if (type === 'left' && hside === 'right') {
           this.node.style.width = gridLine - this.node.style.left
-        } else if (type === 'x' && hside === 'left') {
+        } else if (type === 'left' && hside === 'left') {
           const xGap = this.node.style.left - gridLine
           this.node.style.left = gridLine
           this.node.style.width += xGap
-        } else if (type === 'y' && vside === 'bottom') {
+        } else if (type === 'top' && vside === 'bottom') {
           this.node.style.height = gridLine - this.node.style.top
-        } else if (type === 'y' && vside === 'top') {
+        } else if (type === 'top' && vside === 'top') {
           const yGap = this.node.style.top - gridLine
           this.node.style.top = gridLine
           this.node.style.height += yGap
