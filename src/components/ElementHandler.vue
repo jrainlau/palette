@@ -1,14 +1,15 @@
 <template>
   <div
-    :class="`comp-text comp-instance ${onFocus ? 'on-focus' : ''}`"
+    :class="`comp-text comp-instance ${node.onFocus ? 'on-focus' : ''}`"
     :style="styleObj"
     :ref="refId"
-    @mousedown="dragStart">
+    @mousedown="dragStart"
+    @dblclick="onDbClick">
     <div class="comp-text-content">
-      {{node.content}}
+      <slot></slot>
     </div>
     <TransformHandler
-      v-if="onFocus"
+      v-if="node.onFocus"
       @resizeStart="onResizeStart"
       @resize="onResize"
       @resizeEnd="onResizeEnd"
@@ -19,9 +20,10 @@
 <script>
 import getRectInfo from '@/tools/getRectInfo'
 import { megnet } from '@/tools/grid'
-import throttle from '@/tools/throttle'
+import { throttle } from 'lodash'
 import { approch, cartesian2polar } from '@/tools/math'
 import TransformHandler from '@/components/TransformHandler'
+import { mapState } from 'vuex'
 
 let xLock = false
 let yLock = false
@@ -40,15 +42,7 @@ export default {
     return {
       draggable: false,
       hasDragged: false,
-      onFocus: true,
-      posStart: {
-        x: 0,
-        y: 0
-      },
-      posEnd: {
-        x: 0,
-        y: 0
-      },
+      selectByRange: false,
       refId: (Math.random() * 1000000).toFixed(0),
       basicStyle: {},
       minHeight: 20,
@@ -56,19 +50,49 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      selectArea: state => state.selectArea,
+      nodes: state => state.pages[state.currentPage] && state.pages[state.currentPage].nodes
+    }),
     styleObj () {
       return `
         width: ${this.node.style.width}px;
         height: ${this.node.style.height}px;
-        line-height: ${this.node.style.lineHeight}px;
+        line-height: ${this.node.style.height}px;
         top: ${this.node.style.top}px;
         left: ${this.node.style.left}px;
         z-index: ${this.node.style.zIndex};
-        border: ${this.onFocus ? '' : this.node.style.border};
+        border: ${this.node.onFocus ? '' : this.node.style.border};
         transform: rotate(${this.node.style.rotate}deg);
         color: ${this.node.style.color};
         text-align: ${this.node.style.textAlign};
       `
+    }
+  },
+  watch: {
+    selectArea ({ top, left, width, height }) {
+      this.node.onFocus = this.selectByRange = (
+        // nw
+        (top < this.node.style.top + this.node.style.height / 2 &&
+        left < this.node.style.left + this.node.style.width / 2 &&
+        top + height > this.node.style.top + this.node.style.height / 2 &&
+        left + width > this.node.style.left + this.node.style.width / 2) ||
+        // ne
+        (top < this.node.style.top + this.node.style.height / 2 &&
+        left > this.node.style.left + this.node.style.width / 2 &&
+        top + height > this.node.style.top + this.node.style.height / 2 &&
+        left + width < this.node.style.left + this.node.style.width / 2) ||
+        // sw
+        (top > this.node.style.top + this.node.style.height / 2 &&
+        left < this.node.style.left + this.node.style.width / 2 &&
+        top + height < this.node.style.top + this.node.style.height / 2 &&
+        left + width > this.node.style.left + this.node.style.width / 2) ||
+        // se
+        (top > this.node.style.top + this.node.style.height / 2 &&
+        left > this.node.style.left + this.node.style.width / 2 &&
+        top + height < this.node.style.top + this.node.style.height / 2 &&
+        left + width < this.node.style.left + this.node.style.width / 2)
+      )
     }
   },
   components: {
@@ -76,8 +100,11 @@ export default {
   },
   mounted () {
     document.addEventListener('mousedown', (e) => {
-      if (!this.$refs[this.refId].contains(e.target)) {
-        this.onFocus = false
+      if (
+        (!this.$refs[this.refId].contains(e.target) && !this.selectByRange) ||
+        e.target.nodeName === 'CANVAS'
+      ) {
+        this.node.onFocus = this.selectByRange = false
       }
     })
   },
@@ -88,44 +115,47 @@ export default {
     },
     dragStart (e) {
       this.updateCurNodePos()
-      this.throttleOnDrag = throttle((e) => {
-        this.onDrag(e)
-      }, 50, 50)
-      document.addEventListener('mousemove', this.throttleOnDrag)
+      document.addEventListener('mousemove', this.onDrag)
       document.addEventListener('mouseup', this.dragEnd)
       this.draggable = true
       this.hasDragged = false
-      this.onFocus = true
-      this.posStart.x = e.x
-      this.posStart.y = e.y
+      this.node.onFocus = true
+      this.node.posStart.x = e.x
+      this.node.posStart.y = e.y
       this.$store.commit('SET_ON_DRAG', true)
     },
-    onDrag (e) {
+    onDrag: throttle(function (e) {
       e.stopPropagation()
       if (this.draggable) {
-        const deltaX = e.x - this.posStart.x
-        const deltaY = e.y - this.posStart.y
-        this.node.style.top = this.posEnd.y + deltaY
-        this.node.style.left = this.posEnd.x + deltaX
+        const deltaX = e.x - this.node.posStart.x
+        const deltaY = e.y - this.node.posStart.y
+        this.$store.dispatch('updateNodePos', {
+          deltaY,
+          deltaX
+        })
+
         this.hasDragged = true
 
         megnet(this.node, 5, ({ type, value }) => {
-          this.node.style[type] = value
+          const distance = value - this.node.style[type]
+          if (this.selectByRange) {
+            this.nodes.map(node => {
+              node.style[type] += distance
+            })
+          } else {
+            this.node.style[type] += distance
+          }
         })
 
         this.updateCurNodePos()
       }
-    },
+    }, 50),
     dragEnd (e) {
       e.stopPropagation()
       this.draggable = false
-      this.posEnd.x = this.node.style.left
-      this.posEnd.y = this.node.style.top
-      if (this.hasDragged) {
-        this.$store.dispatch('updateNode', this.node)
-      }
+      this.$store.commit('SET_NODE_POSEND')
       this.$store.commit('SET_ON_DRAG', false)
-      document.removeEventListener('mousemove', this.throttleOnDrag)
+      document.removeEventListener('mousemove', this.onDrag)
       document.removeEventListener('mouseup', this.dragEnd)
     },
     onResizeStart () {
@@ -178,8 +208,8 @@ export default {
     },
     onResizeEnd () {
       this.$store.dispatch('updateNode', this.node)
-      this.posEnd.x = this.node.style.left
-      this.posEnd.y = this.node.style.top
+      this.node.posEnd.x = this.node.style.left
+      this.node.posEnd.y = this.node.style.top
       xLock = false
       yLock = false
       lockedXValue = 0
@@ -225,6 +255,9 @@ export default {
         }
         yResizable = affectTop ? lockedYValue - deltaY > 0 : lockedYValue - deltaY < 0
       }
+    },
+    onDbClick (e) {
+      console.log(e)
     }
   }
 }

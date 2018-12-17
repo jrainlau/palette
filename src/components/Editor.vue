@@ -5,7 +5,12 @@
       <ElementHandler
         v-for="(node, index) in nodes"
         :key="index"
-        :node="node" />
+        :node="node">
+        <div v-if="node.type === 'text'">text</div>
+        <div v-if="node.type === 'image'">image</div>
+        <div v-if="node.type === 'video'">video</div>
+        <div v-if="node.type === 'shape'">shape</div>
+      </ElementHandler>
     </div>
   </div>
 </template>

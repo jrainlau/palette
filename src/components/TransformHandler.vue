@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import throttle from '@/tools/throttle'
+import { throttle } from 'lodash'
 
 export default {
   props: {
@@ -71,10 +71,7 @@ export default {
       this.affectTop = affectTop
       this.startX = e.x
       this.startY = e.y
-      this.throttleResize = throttle((e) => {
-        this.resize(e)
-      }, 20, 20)
-      document.addEventListener('mousemove', this.throttleResize)
+      document.addEventListener('mousemove', this.resize)
       document.addEventListener('mouseup', this.onMouseUp)
       this.$emit('resizeStart', {
         startX: this.startX,
@@ -85,10 +82,10 @@ export default {
       e.stopPropagation()
       this.onResize = false
       this.$emit('resizeEnd')
-      document.removeEventListener('mousemove', this.throttleResize)
+      document.removeEventListener('mousemove', this.resize)
       document.removeEventListener('mouseup', this.onMouseUp)
     },
-    resize (e) {
+    resize: throttle(function (e) {
       e.stopPropagation()
       if (this.onResize && this.direction !== 'rotate') {
         this.deltaX = e.x - this.startX
@@ -108,7 +105,7 @@ export default {
           deltaY: this.deltaY
         })
       }
-    }
+    }, 50)
   }
 }
 </script>

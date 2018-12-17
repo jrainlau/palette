@@ -77,13 +77,11 @@ export function megnet (elInfo, gap, cb, hside = 'all', vside = 'all') {
       result.value = _x
       result.gridLine = _x
       cb(result)
-    }
-    if ((hside === 'all' || hside === 'right') && approch(elRight, _x, gap) && !rotate) {
+    } else if ((hside === 'all' || hside === 'right') && approch(elRight, _x, gap) && !rotate) {
       result.value = _x - width
       result.gridLine = _x
       cb(result)
-    }
-    if (hside === 'all' && approch(centre.x, _x, gap)) {
+    } else if (hside === 'all' && approch(centre.x, _x, gap)) {
       result.value = _x - width / 2
       result.gridLine = _x
       cb(result)
@@ -97,16 +95,23 @@ export function megnet (elInfo, gap, cb, hside = 'all', vside = 'all') {
       result.value = _y
       result.gridLine = _y
       cb(result)
-    }
-    if ((vside === 'all' || vside === 'bottom') && approch(elBottom, _y, gap) && !rotate) {
+    } else if ((vside === 'all' || vside === 'bottom') && approch(elBottom, _y, gap) && !rotate) {
       result.value = _y - height
       result.gridLine = _y
       cb(result)
-    }
-    if (vside === 'all' && approch(centre.y, _y, gap)) {
+    } else if (vside === 'all' && approch(centre.y, _y, gap)) {
       result.value = _y - height / 2
       result.gridLine = _y
       cb(result)
     }
   }
+}
+
+export function drawRect (context, stepx, stepy, x, y, width, height) {
+  resetGrid(context, stepx, stepy)
+  context.beginPath()
+  context.lineWidth = '1'
+  context.strokeStyle = 'yellow'
+  context.rect(x, y, width, height)
+  context.stroke()
 }

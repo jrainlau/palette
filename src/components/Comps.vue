@@ -16,7 +16,19 @@ let zIndex = 0
 export default {
   data () {
     return {
-      compList: ['text', 'image', 'video']
+      compList: ['text', 'image', 'video', 'shape'],
+      basicStyle: `{
+        "width": 150,
+        "height": 30,
+        "lineHeight": 30,
+        "left": 0,
+        "top": 0,
+        "zIndex": "${zIndex}",
+        "border": "none",
+        "rotate": 0,
+        "color": "#333",
+        "textAlign": "center"
+      }`
     }
   },
   methods: {
@@ -28,18 +40,27 @@ export default {
           node: {
             type,
             content: 'Text',
-            style: {
-              width: 150,
-              height: 30,
-              lineHeight: 30,
-              left: 0,
-              top: 0,
-              zIndex,
-              border: 'none',
-              rotate: 0,
-              color: '#333',
-              textAlign: 'center'
-            }
+            style: JSON.parse(this.basicStyle)
+          }
+        })
+      }
+      if (type === 'image') {
+        this.$store.dispatch('addNode', {
+          pageIndex: 0,
+          node: {
+            type,
+            content: 'Image',
+            style: { ...JSON.parse(this.basicStyle), height: 150 }
+          }
+        })
+      }
+      if (type === 'video') {
+        this.$store.dispatch('addNode', {
+          pageIndex: 0,
+          node: {
+            type,
+            content: 'Video',
+            style: { ...JSON.parse(this.basicStyle), width: 350, height: 250 }
           }
         })
       }
