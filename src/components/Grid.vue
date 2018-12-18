@@ -69,7 +69,7 @@ export default {
       if (this.draggable) {
         const [deltaX, deltaY] = [e.offsetX - this.startX, e.offsetY - this.startY]
         drawRect(this.context, this.stepX, this.stepY, this.startX, this.startY, deltaX, deltaY)
-        this.$store.dispatch('setSelectArea', {
+        this.$store.commit('SET_SELECT_AREA', {
           top: this.startY,
           left: this.startX,
           width: deltaX,

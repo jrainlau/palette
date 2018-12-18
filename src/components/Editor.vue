@@ -26,6 +26,13 @@ export default {
       nodes: state => state.pages[state.currentPage] && state.pages[state.currentPage].nodes
     })
   },
+  mounted () {
+    document.addEventListener('keyup', (e) => {
+      if (e.keyCode === 91) {
+        this.$store.commit('SET_AS_A_GROUP')
+      }
+    })
+  },
   components: {
     ElementHandler,
     Grid

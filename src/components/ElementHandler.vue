@@ -42,7 +42,6 @@ export default {
     return {
       draggable: false,
       hasDragged: false,
-      selectByRange: false,
       refId: (Math.random() * 1000000).toFixed(0),
       basicStyle: {},
       minHeight: 20,
@@ -71,7 +70,7 @@ export default {
   },
   watch: {
     selectArea ({ top, left, width, height }) {
-      this.node.onFocus = this.selectByRange = (
+      const rangeStatus = (
         // nw
         (top < this.node.style.top + this.node.style.height / 2 &&
         left < this.node.style.left + this.node.style.width / 2 &&
@@ -93,6 +92,15 @@ export default {
         top + height < this.node.style.top + this.node.style.height / 2 &&
         left + width < this.node.style.left + this.node.style.width / 2)
       )
+      if (!this.node.groupId) {
+        this.node.onFocus = this.node.selectByRange = rangeStatus
+      } else {
+        this.nodes.forEach(node => {
+          if (node.groupId === this.node.groupId) {
+            node.onFocus = node.selectByRange = rangeStatus
+          }
+        })
+      }
     }
   },
   components: {
@@ -101,17 +109,17 @@ export default {
   mounted () {
     document.addEventListener('mousedown', (e) => {
       if (
-        (!this.$refs[this.refId].contains(e.target) && !this.selectByRange) ||
+        (!this.$refs[this.refId].contains(e.target) && !this.node.selectByRange) ||
         e.target.nodeName === 'CANVAS'
       ) {
-        this.node.onFocus = this.selectByRange = false
+        this.node.onFocus = this.node.selectByRange = false
       }
     })
   },
   methods: {
     updateCurNodePos () {
       const nodePos = getRectInfo(this.node.style)
-      this.$store.dispatch('updateCurNodePos', nodePos)
+      this.$store.commit('UPDATE_CUR_NODE_POS', nodePos)
     },
     dragStart (e) {
       this.updateCurNodePos()
@@ -120,6 +128,7 @@ export default {
       this.draggable = true
       this.hasDragged = false
       this.node.onFocus = true
+      this.$store.commit('SELECT_AS_GROUP', { groupId: this.node.groupId, val: true })
       this.node.posStart.x = e.x
       this.node.posStart.y = e.y
       this.$store.commit('SET_ON_DRAG', true)
@@ -129,7 +138,7 @@ export default {
       if (this.draggable) {
         const deltaX = e.x - this.node.posStart.x
         const deltaY = e.y - this.node.posStart.y
-        this.$store.dispatch('updateNodePos', {
+        this.$store.commit('UPDATE_NODE_POS', {
           deltaY,
           deltaX
         })
@@ -138,13 +147,11 @@ export default {
 
         megnet(this.node, 5, ({ type, value }) => {
           const distance = value - this.node.style[type]
-          if (this.selectByRange) {
-            this.nodes.map(node => {
+          this.nodes.map(node => {
+            if (node.onFocus) {
               node.style[type] += distance
-            })
-          } else {
-            this.node.style[type] += distance
-          }
+            }
+          })
         })
 
         this.updateCurNodePos()
@@ -207,7 +214,7 @@ export default {
       this.updateCurNodePos()
     },
     onResizeEnd () {
-      this.$store.dispatch('updateNode', this.node)
+      this.$store.commit('UPDATE_NODE', this.node)
       this.node.posEnd.x = this.node.style.left
       this.node.posEnd.y = this.node.style.top
       xLock = false

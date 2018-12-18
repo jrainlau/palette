@@ -36,32 +36,23 @@ export default {
       zIndex++
       if (type === 'text') {
         this.$store.dispatch('addNode', {
-          pageIndex: 0,
-          node: {
-            type,
-            content: 'Text',
-            style: JSON.parse(this.basicStyle)
-          }
+          type,
+          content: 'Text',
+          style: JSON.parse(this.basicStyle)
         })
       }
       if (type === 'image') {
         this.$store.dispatch('addNode', {
-          pageIndex: 0,
-          node: {
-            type,
-            content: 'Image',
-            style: { ...JSON.parse(this.basicStyle), height: 150 }
-          }
+          type,
+          content: 'Image',
+          style: { ...JSON.parse(this.basicStyle), height: 150 }
         })
       }
       if (type === 'video') {
         this.$store.dispatch('addNode', {
-          pageIndex: 0,
-          node: {
-            type,
-            content: 'Video',
-            style: { ...JSON.parse(this.basicStyle), width: 350, height: 250 }
-          }
+          type,
+          content: 'Video',
+          style: { ...JSON.parse(this.basicStyle), width: 350, height: 250 }
         })
       }
     }
