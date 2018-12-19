@@ -2,6 +2,7 @@
   <div class="editor">
     <div class="editor-main">
       <Grid />
+      <GroupWrapper />
       <ElementHandler
         v-for="(node, index) in nodes"
         :key="index"
@@ -19,6 +20,7 @@
 import { mapState } from 'vuex'
 import ElementHandler from './ElementHandler'
 import Grid from '@/components/Grid'
+import GroupWrapper from '@/components/GroupWrapper'
 
 export default {
   computed: {
@@ -35,7 +37,8 @@ export default {
   },
   components: {
     ElementHandler,
-    Grid
+    Grid,
+    GroupWrapper
   }
 }
 </script>

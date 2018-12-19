@@ -61,6 +61,9 @@ export default new Vuex.Store({
         } else if (!dissolve && node.onFocus && node.groupId) {
           console.warn(`Node with nodeId "${node.nodeId}" was in a group`)
         }
+        if (dissolve && node.onFocus) {
+          node.groupId = undefined
+        }
       })
       groupId = `group-${(Math.random() * 1000000).toFixed(0)}`
     },

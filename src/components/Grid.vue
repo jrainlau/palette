@@ -4,7 +4,6 @@
       ref="canvas"
       width="960" height="700"
       @mousedown="onDragStart"
-      @mousemove="onDragging"
       @mouseup="onDragEnd">
     </canvas>
   </div>
@@ -14,6 +13,9 @@
 import { drawGrid, highlight, resetGrid, drawRect } from '@/tools/grid'
 import { mapState } from 'vuex'
 import { throttle } from 'lodash'
+
+let canvasLeft = 0
+let canvasTop = 0
 
 export default {
   props: {
@@ -46,6 +48,10 @@ export default {
   mounted () {
     this.canvas = this.$refs.canvas
     this.context = this.canvas.getContext('2d')
+
+    canvasLeft = this.$refs.canvas.getBoundingClientRect().left
+    canvasTop = this.$refs.canvas.getBoundingClientRect().top
+
     drawGrid(this.context, this.stepX, this.stepY)
     document.addEventListener('mouseup', () => {
       setTimeout(() => {
@@ -62,16 +68,17 @@ export default {
   methods: {
     onDragStart (e) {
       this.draggable = true
-      this.startX = e.offsetX
-      this.startY = e.offsetY
+      this.startX = e.clientX
+      this.startY = e.clientY
+      document.addEventListener('mousemove', this.onDragging)
     },
     onDragging: throttle(function (e) {
       if (this.draggable) {
-        const [deltaX, deltaY] = [e.offsetX - this.startX, e.offsetY - this.startY]
-        drawRect(this.context, this.stepX, this.stepY, this.startX, this.startY, deltaX, deltaY)
+        const [deltaX, deltaY] = [e.clientX - this.startX, e.clientY - this.startY]
+        drawRect(this.context, this.stepX, this.stepY, this.startX - canvasLeft, this.startY - canvasTop, deltaX, deltaY)
         this.$store.commit('SET_SELECT_AREA', {
-          top: this.startY,
-          left: this.startX,
+          top: this.startY - canvasTop,
+          left: this.startX - canvasLeft,
           width: deltaX,
           height: deltaY
         })
