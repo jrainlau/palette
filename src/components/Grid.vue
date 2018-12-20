@@ -70,6 +70,9 @@ export default {
       this.draggable = true
       this.startX = e.clientX
       this.startY = e.clientY
+      this.$store.commit('NODE_BLUR', {
+        force: true
+      })
       document.addEventListener('mousemove', this.onDragging)
     },
     onDragging: throttle(function (e) {

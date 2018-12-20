@@ -74,6 +74,17 @@ export default new Vuex.Store({
           node.selectByRange = val
         }
       })
+    },
+    NODE_BLUR (_state, { nodeId, selectByRange, force = false }) {
+      if (selectByRange) {
+        return
+      }
+      _state.pages[_state.currentPage].nodes.forEach(node => {
+        if (force || node.nodeId !== nodeId) {
+          node.onFocus = false
+          node.selectByRange = false
+        }
+      })
     }
   },
   actions: {

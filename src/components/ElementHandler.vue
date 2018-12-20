@@ -3,6 +3,7 @@
     :class="`comp-text comp-instance ${node.onFocus ? 'on-focus' : ''}`"
     :style="styleObj"
     :ref="refId"
+    :data-select-by-range="node.selectByRange ? 'true' : 'false'"
     @mousedown="dragStart"
     @dblclick="onDbClick">
     <div class="comp-text-content">
@@ -68,6 +69,12 @@ export default {
       `
     }
   },
+  mounted () {
+    this.$store.commit('NODE_BLUR', {
+      nodeId: this.node.nodeId,
+      selectByRange: this.node.selectByRange
+    })
+  },
   watch: {
     selectArea ({ top, left, width, height }) {
       const rangeStatus = (
@@ -106,22 +113,16 @@ export default {
   components: {
     TransformHandler
   },
-  mounted () {
-    document.addEventListener('mousedown', (e) => {
-      if (
-        (!this.$refs[this.refId].contains(e.target) && !this.node.selectByRange) ||
-        e.target.nodeName === 'CANVAS'
-      ) {
-        this.node.onFocus = this.node.selectByRange = false
-      }
-    })
-  },
   methods: {
     updateCurNodePos () {
       const nodePos = getRectInfo(this.node.style)
       this.$store.commit('UPDATE_CUR_NODE_POS', nodePos)
     },
     dragStart (e) {
+      this.$store.commit('NODE_BLUR', {
+        nodeId: this.node.nodeId,
+        selectByRange: this.node.selectByRange
+      })
       this.updateCurNodePos()
       document.addEventListener('mousemove', this.onDrag)
       document.addEventListener('mouseup', this.dragEnd)
