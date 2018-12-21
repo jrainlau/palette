@@ -91,6 +91,7 @@ export default {
       this.draggable = false
       this.startX = 0
       this.startY = 0
+      document.removeEventListener('mousemove', this.onDragging)
     }
   }
 }

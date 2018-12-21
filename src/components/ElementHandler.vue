@@ -2,8 +2,6 @@
   <div
     :class="`comp-text comp-instance ${node.onFocus ? 'on-focus' : ''}`"
     :style="styleObj"
-    :ref="refId"
-    :data-select-by-range="node.selectByRange ? 'true' : 'false'"
     @mousedown="dragStart"
     @dblclick="onDbClick">
     <div class="comp-text-content">
@@ -43,7 +41,6 @@ export default {
     return {
       draggable: false,
       hasDragged: false,
-      refId: (Math.random() * 1000000).toFixed(0),
       basicStyle: {},
       minHeight: 20,
       minWidth: 20
